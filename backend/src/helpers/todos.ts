@@ -37,7 +37,7 @@ export async function deleteTodo(userId: string, todoId: string): Promise<void> 
     await todosAccess.deleteTodo(userId, todoId);
 }
 
-export async function createAttachmentPresignedUrl(userId: string, todoId: string): Promise<void> {
+export async function createAttachmentPresignedUrl(userId: string, todoId: string): Promise<String> {
     logger.info("create AttachmentPresignedUrl", { "userId": userId, "todoId": todoId });
-    await attachmentUtils.generateUploadUrl(userId, todoId);
+    return await attachmentUtils.generateUploadUrl(userId, todoId);
 }
