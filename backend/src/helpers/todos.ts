@@ -8,9 +8,9 @@ import * as uuid from 'uuid'
 // import * as createError from 'http-errors'
 import { TodoUpdate } from '../models/TodoUpdate';
 
-const logger = createLogger('todos')
-const todosAccess = new TodosAccess()
-const attachmentUtils = new AttachmentUtils()
+const logger = createLogger('todos');
+const todosAccess = new TodosAccess();
+const attachmentUtils = new AttachmentUtils();
 
 export async function getTodosForUser(userId: string): Promise<TodoItem[]> {
     logger.info("get todo for user", { "userId": userId })
@@ -21,8 +21,7 @@ export async function createTodo(userId: string, createTodoRequest: CreateTodoRe
     const todoId = uuid.v4();
     const createdAt = new Date().toISOString();
     const done = false;
-    const attachmentUrl = await attachmentUtils.generateUploadUrl(userId, todoId);
-    const todoItem: TodoItem = { userId, todoId, createdAt, ...createTodoRequest, done, attachmentUrl };
+    const todoItem: TodoItem = { userId, todoId, createdAt, ...createTodoRequest, done };
     logger.info("create todo for user", { "userId": userId, ...createTodoRequest });
     return await todosAccess.createTodo(todoItem);
 }

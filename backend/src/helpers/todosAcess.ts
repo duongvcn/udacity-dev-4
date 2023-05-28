@@ -47,14 +47,18 @@ export class TodosAccess {
         await this.docClient
             .update({
                 TableName: this.todosTable,
-                Key: { userId, todoId },
-                ConditionExpression: 'attribute_exists(todoId)',
-                UpdateExpression: 'set #n = :name, dueDate = :due, done = :done',
-                ExpressionAttributeNames: { '#n': 'name' },
+                Key: {
+                    "userId": userId,
+                    "todoId": todoId
+                },
+                UpdateExpression: "set #n = :name, done = :done, dueDate = :dueDate",
+                ExpressionAttributeNames: {
+                    "#n": "name"
+                },
                 ExpressionAttributeValues: {
-                    ':name': updateData.name,
-                    ':due': updateData.dueDate,
-                    ':done': updateData.done
+                    ":name": updateData.name,
+                    ":done": updateData.done,
+                    ":dueDate": updateData.dueDate
                 }
             })
             .promise();
@@ -69,18 +73,8 @@ export class TodosAccess {
             })
             .promise();
     }
-
-    async createAttachmentPresignedUrl(userId: string, todoId: string) {
-        logger.info(`create attachment a todo item: ${todoId}`);
-        await this.docClient
-            .delete({
-                TableName: this.todosTable,
-                Key: { "userId": userId, "todoId": todoId },
-            })
-            .promise();
-    }
-
 }
+
 function createDynamoDBClient() {
     if (process.env.IS_OFFLINE) {
       console.log('Creating a local DynamoDB instance')

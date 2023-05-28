@@ -19,23 +19,22 @@ export class AttachmentUtils {
         private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION,
         private readonly docClient: DocumentClient = new XAWS.DynamoDB.DocumentClient()) {
     }
-    
-    async generateUploadUrl(todoId: string, imageId: string): Promise<string> {
-        logger.info('generateUploadUrl', { "todoId": todoId , "imageId": imageId});
-        const params = {
-            TableName: this.todosTable,
-            Key: {
-                todoId: todoId
-            },
-            UpdateExpression: 'SET #attachmentUrl =:url',
-            ExpressionAttributeNames: { "#attachmentUrl": "attachmentUrl" },
-            ExpressionAttributeValues: { ":url": `https://${this.bucketName}.s3.amazonaws.com/${imageId}` },
-            ReturnValues: 'UPDATED_NEW'
-        };
-    
-        await this.docClient.update(params).promise();
-        const url = this.getUploadUrl(imageId);
-        return url;
+
+    async generateUploadUrl(userId: string, todoId: string): Promise<void> {
+        logger.info(`Updating a todo item: ${todoId}`);
+        await this.docClient
+            .update({
+                TableName: this.todosTable,
+                Key: {
+                    "userId": userId,
+                    "todoId": todoId
+                },
+                UpdateExpression: "set #attachmentUrl = :attachmentUrl",
+                ExpressionAttributeNames: { "#attachmentUrl": "attachmentUrl"},
+                ExpressionAttributeValues: {":attachmentUrl": `https://${this.bucketName}.s3.amazonaws.com/${todoId}`},
+                ReturnValues: 'UPDATED_NEW'
+            })
+            .promise();
     }
 
     async getUploadUrl(imageId: string) {
