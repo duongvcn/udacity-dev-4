@@ -64,6 +64,10 @@ export class EditTodo extends React.PureComponent<
     }
   }
 
+  onCancel = async () => {
+    this.props.auth.login()
+  }
+
   setUploadState(uploadState: UploadState) {
     this.setState({
       uploadState
@@ -74,7 +78,6 @@ export class EditTodo extends React.PureComponent<
     return (
       <div>
         <h1>Upload new image</h1>
-
         <Form onSubmit={this.handleSubmit}>
           <Form.Field>
             <label>File</label>
@@ -85,13 +88,13 @@ export class EditTodo extends React.PureComponent<
               onChange={this.handleFileChange}
             />
           </Form.Field>
-
+          
           {this.renderButton()}
         </Form>
       </div>
     )
   }
-
+  
   renderButton() {
 
     return (
@@ -100,9 +103,15 @@ export class EditTodo extends React.PureComponent<
         {this.state.uploadState === UploadState.UploadingFile && <p>Uploading file</p>}
         <Button
           loading={this.state.uploadState !== UploadState.NoUpload}
-          type="submit"
+          type="submit" color="teal"
         >
           Upload
+        </Button>
+        <Button 
+          onClick={this.onCancel} 
+          type="button"
+        >
+          Cancel
         </Button>
       </div>
     )
