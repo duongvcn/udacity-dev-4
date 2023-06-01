@@ -14,7 +14,7 @@ import {
   Loader
 } from 'semantic-ui-react'
 
-import { createTodo, deleteTodo, getTodos, patchTodo } from '../api/todos-api'
+import { createTodo, deleteTodo, getTodos, updateTodo } from '../api/todos-api'
 import Auth from '../auth/Auth'
 import { Todo } from '../types/Todo'
 
@@ -40,7 +40,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     this.setState({ newTodoName: event.target.value })
   }
 
-  onEditButtonClick = (todoId: string) => {
+  onEditButtonClick = (todoId: string, name: string) => {
     this.props.history.push(`/todos/${todoId}/edit`)
   }
 
@@ -61,20 +61,26 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
   }
 
   onTodoDelete = async (todoId: string) => {
-    try {
-      await deleteTodo(this.props.auth.getIdToken(), todoId)
-      this.setState({
-        todos: this.state.todos.filter(todo => todo.todoId !== todoId)
-      })
-    } catch {
-      alert('Todo deletion failed')
+    if (window.confirm("Are you sure delete this item?") == true) {
+      try {
+        await deleteTodo(this.props.auth.getIdToken(), todoId);
+        this.setState({
+          todos: this.state.todos.filter(todo => todo.todoId !== todoId)
+        })
+        alert('Todo deletion success');
+      } catch {
+        alert('Todo deletion failed');
+      }
     }
   }
 
   onTodoCheck = async (pos: number) => {
     try {
       const todo = this.state.todos[pos]
-      await patchTodo(this.props.auth.getIdToken(), todo.todoId, {
+      this.setState({
+        loadingTodos: true
+      })
+      await updateTodo(this.props.auth.getIdToken(), todo.todoId, {
         name: todo.name,
         dueDate: todo.dueDate,
         done: !todo.done
@@ -82,10 +88,15 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
       this.setState({
         todos: update(this.state.todos, {
           [pos]: { done: { $set: !todo.done } }
-        })
+        }),
+      })
+      alert('Update '+todo.name+' success!')
+      this.setState({
+        todos: this.state.todos,
+        loadingTodos: false
       })
     } catch {
-      alert('Todo deletion failed')
+      alert('Cannot update this!')
     }
   }
 
@@ -178,7 +189,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
                 <Button
                   icon
                   color="blue"
-                  onClick={() => this.onEditButtonClick(todo.todoId)}
+                  onClick={() => this.onEditButtonClick(todo.todoId, todo.name)}
                 >
                   <Icon name="pencil" />
                 </Button>
